@@ -43,25 +43,11 @@ export const getClient = async (): Promise<PoolClient> => {
   return client;
 };
 
-// Initialize database tables
+// Initialize database - run migrations
 export const initializeDatabase = async () => {
   try {
-    // Create items table
-    await query(`
-      CREATE TABLE IF NOT EXISTS items (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-
-    // Create index on name for faster lookups
-    await query(`
-      CREATE INDEX IF NOT EXISTS idx_items_name ON items(name)
-    `);
-
-    console.log('Database tables initialized successfully');
+    const { migrate } = await import('../migrations/migrate.js');
+    await migrate();
   } catch (error) {
     console.error('Error initializing database:', error);
     throw error;
