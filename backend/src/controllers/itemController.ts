@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import * as itemModel from '../models/item.js';
+import { ItemModel } from '../models/itemProxy.js';
 
 // Create an item
 export const createItem = async (
@@ -14,7 +14,7 @@ export const createItem = async (
       return res.status(400).json({ error: 'Item name is required' });
     }
 
-    const item = await itemModel.createItem({ name: name.trim() });
+    const item = await ItemModel.createItem({ name: name.trim() });
     res.status(201).json(item);
   } catch (error) {
     next(error);
@@ -28,7 +28,7 @@ export const getItems = async (
   next: NextFunction
 ) => {
   try {
-    const items = await itemModel.getAllItems();
+    const items = await ItemModel.getAllItems();
     res.json(items);
   } catch (error) {
     next(error);
@@ -47,7 +47,7 @@ export const getItemById = async (
       return res.status(400).json({ error: 'Invalid item ID' });
     }
 
-    const item = await itemModel.getItemById(id);
+    const item = await ItemModel.getItemById(id);
     if (!item) {
       return res.status(404).json({ message: 'Item not found' });
     }
@@ -72,7 +72,7 @@ export const updateItem = async (
 
     const { name } = req.body;
 
-    const item = await itemModel.updateItem(id, { name });
+    const item = await ItemModel.updateItem(id, { name });
     if (!item) {
       return res.status(404).json({ message: 'Item not found' });
     }
@@ -95,7 +95,7 @@ export const deleteItem = async (
       return res.status(400).json({ error: 'Invalid item ID' });
     }
 
-    const deleted = await itemModel.deleteItem(id);
+    const deleted = await ItemModel.deleteItem(id);
     if (!deleted) {
       return res.status(404).json({ message: 'Item not found' });
     }
