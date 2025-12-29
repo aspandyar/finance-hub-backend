@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create index on email for faster lookups
-CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+-- Note: The UNIQUE constraint on email automatically creates a unique index
+-- Primary key: id (automatically indexed)
+-- Unique index: email (created by UNIQUE constraint)
 
