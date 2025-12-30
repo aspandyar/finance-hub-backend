@@ -1,5 +1,6 @@
 import * as userModel from './user.js';
 import * as categoryModel from './category.js';
+import * as transactionModel from './transaction.js';
 
 export const UserModel = {
   getAllUsers: userModel.getAllUsers,
@@ -17,5 +18,14 @@ export const CategoryModel = {
   createCategory: categoryModel.createCategory,
   updateCategory: categoryModel.updateCategory,
   deleteCategory: categoryModel.deleteCategory,
+};
+
+export const TransactionModel = {
+  getAllTransactions: transactionModel.getAllTransactions,
+  getTransactionById: transactionModel.getTransactionById,
+  getTransactionsByUserId: transactionModel.getTransactionsByUserId,
+  createTransaction: transactionModel.createTransaction,
+  updateTransaction: transactionModel.updateTransaction,
+  deleteTransaction: transactionModel.deleteTransaction,
 };
 
