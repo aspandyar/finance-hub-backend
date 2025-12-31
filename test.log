@@ -1,0 +1,1934 @@
+
+> financehub-backend@1.0.0 test
+> node --experimental-vm-modules node_modules/jest/bin/jest.js
+
+(node:12056) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL src/tests/password.test.ts
+  ● Password Utils › hashPassword › should hash password with bcrypt
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "hashed-password"
+    Received: "$2b$10$H6nHPxltt1AVsB9Vi6l6/uHkDDi/U5dBf7soZs80FEYNQUeFijDwi"
+
+      94 |       const result = await hashPassword(password);
+      95 |
+    > 96 |       expect(result).toBe(hashedPassword);
+         |                      ^
+      97 |       expect(mockHash).toHaveBeenCalledWith(password, 10);
+      98 |     });
+      99 |
+
+      at Object.<anonymous> (src/tests/password.test.ts:96:22)
+
+  ● Password Utils › hashPassword › should use salt rounds of 10
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "TestPassword123!", 10
+
+    Number of calls: 0
+
+      105 |       await hashPassword(password);
+      106 |
+    > 107 |       expect(mockHash).toHaveBeenCalledWith(password, 10);
+          |                        ^
+      108 |     });
+      109 |   });
+      110 |
+
+      at Object.<anonymous> (src/tests/password.test.ts:107:24)
+
+  ● Password Utils › comparePassword › should return true for matching password and hash
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      117 |       const result = await comparePassword(password, hash);
+      118 |
+    > 119 |       expect(result).toBe(true);
+          |                      ^
+      120 |       expect(mockCompare).toHaveBeenCalledWith(password, hash);
+      121 |     });
+      122 |
+
+      at Object.<anonymous> (src/tests/password.test.ts:119:22)
+
+  ● Password Utils › comparePassword › should return false for non-matching password and hash
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: "TestPassword123!", "hashed-password"
+
+    Number of calls: 0
+
+      129 |
+      130 |       expect(result).toBe(false);
+    > 131 |       expect(mockCompare).toHaveBeenCalledWith(password, hash);
+          |                           ^
+      132 |     });
+      133 |   });
+      134 | });
+
+      at Object.<anonymous> (src/tests/password.test.ts:131:27)
+
+FAIL src/tests/recurringTransactionController.test.ts
+  ● Console
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: ⚙️  override existing env vars with { override: true }
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      Connected to PostgreSQL database
+
+      at BoundPool.<anonymous> (src/config/database.ts:13:11)
+
+    console.log
+      Connected to PostgreSQL database
+
+      at BoundPool.<anonymous> (src/config/database.ts:13:11)
+
+    console.log
+      Executed query {
+        text: 'SELECT * FROM recurring_transactions \n' +
+          '     WHERE is_active = TRUE \n' +
+          '     AND next_occurrence <= $1 \n' +
+          '     AND (end_date IS NULL OR end_date >= $1)\n' +
+          '     ORDER BY next_occurrence ASC',
+        duration: 11,
+        rows: 0
+      }
+
+      at query (src/config/database.ts:27:13)
+
+  ● Recurring Transaction Controller › createRecurringTransaction › should create recurring transaction successfully
+
+    TypeError: mockCreateRecurringTransaction.mockResolvedValue is not a function
+
+      84 |       };
+      85 |       mockRequest.body = transactionData;
+    > 86 |       mockCreateRecurringTransaction.mockResolvedValue(createdTransaction);
+         |                                      ^
+      87 |  
+      88 |       await createRecurringTransaction(
+      89 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/recurringTransactionController.test.ts:86:38)
+
+  ● Recurring Transaction Controller › getRecurringTransactions › should return recurring transactions for authenticated user
+
+    TypeError: mockGetAllRecurringTransactions.mockResolvedValue is not a function
+
+      237 |         role: 'user',
+      238 |       };
+    > 239 |       mockGetAllRecurringTransactions.mockResolvedValue(transactions);
+          |                                       ^
+      240 |     
+      241 |       await getRecurringTransactions(
+      242 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/recurringTransactionController.test.ts:239:39)
+
+  ● Recurring Transaction Controller › getRecurringTransactions › should filter by is_active when provided
+
+    expect(received).toHaveBeenCalledWith(...expected)
+
+    Matcher error: received value must be a mock or spy function
+
+    Received has type:  function
+    Received has value: [Function getAllRecurringTransactions]
+
+      263 |       );
+      264 |
+    > 265 |       expect(mockGetAllRecurringTransactions).toHaveBeenCalledWith('user-123', true);
+          |                                               ^
+      266 |     });
+      267 |   });
+      268 |
+
+      at Object.<anonymous> (src/tests/recurringTransactionController.test.ts:265:47)
+
+  ● Recurring Transaction Controller › getRecurringTransactionById › should return recurring transaction by id
+
+    TypeError: mockGetRecurringTransactionById.mockResolvedValue is not a function
+
+      285 |
+      286 |       mockRequest.params = { id: 'recurring-123' };
+    > 287 |       mockGetRecurringTransactionById.mockResolvedValue(transaction);
+          |                                       ^
+      288 |
+      289 |       await getRecurringTransactionById(
+      290 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/recurringTransactionController.test.ts:287:39)
+
+  ● Recurring Transaction Controller › getRecurringTransactionById › should return 404 when transaction not found
+
+    TypeError: mockGetRecurringTransactionById.mockResolvedValue is not a function
+
+      299 |     it('should return 404 when transaction not found', async () => {
+      300 |       mockRequest.params = { id: 'recurring-123' };
+    > 301 |       mockGetRecurringTransactionById.mockResolvedValue(null);
+          |                                       ^
+      302 |
+      303 |       await getRecurringTransactionById(
+      304 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/recurringTransactionController.test.ts:301:39)
+
+  ● Recurring Transaction Controller › getDueRecurringTransactions › should return due transactions for specified date
+
+    TypeError: mockGetDueRecurringTransactions.mockResolvedValue is not a function
+
+      331 |
+      332 |       mockRequest.query = { date: '2024-02-01' };
+    > 333 |       mockGetDueRecurringTransactions.mockResolvedValue(transactions);
+          |                                       ^
+      334 |
+      335 |       await getDueRecurringTransactions(
+      336 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/recurringTransactionController.test.ts:333:39)
+
+  ● Recurring Transaction Controller › getDueRecurringTransactions › should use today as default when date not provided
+
+    expect(received).toHaveBeenCalledWith(...expected)
+
+    Matcher error: received value must be a mock or spy function
+
+    Received has type:  function
+    Received has value: [Function getDueRecurringTransactions]
+
+      353 |       );
+      354 |
+    > 355 |       expect(mockGetDueRecurringTransactions).toHaveBeenCalledWith(today);
+          |                                               ^
+      356 |     });
+      357 |   });
+      358 |
+
+      at Object.<anonymous> (src/tests/recurringTransactionController.test.ts:355:47)
+
+  ● Recurring Transaction Controller › updateRecurringTransaction › should update recurring transaction successfully
+
+    TypeError: mockGetRecurringTransactionById.mockResolvedValue is not a function
+
+      386 |       mockRequest.params = { id: 'recurring-123' };
+      387 |       mockRequest.body = { amount: 150 };
+    > 388 |       mockGetRecurringTransactionById.mockResolvedValue(existingTransaction);
+          |                                       ^
+      389 |       mockUpdateRecurringTransaction.mockResolvedValue(updatedTransaction);
+      390 |
+      391 |       await updateRecurringTransaction(
+
+      at Object.<anonymous> (src/tests/recurringTransactionController.test.ts:388:39)
+
+  ● Recurring Transaction Controller › updateRecurringTransaction › should return 403 when user does not own transaction
+
+    TypeError: mockGetRecurringTransactionById.mockResolvedValue is not a function
+
+      421 |       };
+      422 |       mockRequest.params = { id: 'recurring-123' };
+    > 423 |       mockGetRecurringTransactionById.mockResolvedValue(existingTransaction);
+          |                                       ^
+      424 |
+      425 |       await updateRecurringTransaction(
+      426 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/recurringTransactionController.test.ts:423:39)
+
+  ● Recurring Transaction Controller › deleteRecurringTransaction › should delete recurring transaction successfully
+
+    TypeError: mockGetRecurringTransactionById.mockResolvedValue is not a function
+
+      456 |       };
+      457 |       mockRequest.params = { id: 'recurring-123' };
+    > 458 |       mockGetRecurringTransactionById.mockResolvedValue(existingTransaction);
+          |                                       ^
+      459 |       mockDeleteRecurringTransaction.mockResolvedValue(true);
+      460 |
+      461 |       await deleteRecurringTransaction(
+
+      at Object.<anonymous> (src/tests/recurringTransactionController.test.ts:458:39)
+
+FAIL src/tests/transactionController.test.ts
+  ● Console
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      Connected to PostgreSQL database
+
+      at BoundPool.<anonymous> (src/config/database.ts:13:11)
+
+  ● Transaction Controller › createTransaction › should create transaction successfully
+
+    TypeError: mockCreateTransaction.mockResolvedValue is not a function
+
+      75 |       };
+      76 |       mockRequest.body = transactionData;
+    > 77 |       mockCreateTransaction.mockResolvedValue(createdTransaction);
+         |                             ^
+      78 |
+      79 |       await createTransaction(
+      80 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/transactionController.test.ts:77:29)
+
+  ● Transaction Controller › createTransaction › should handle foreign key constraint violation
+
+    TypeError: mockCreateTransaction.mockRejectedValue is not a function
+
+      240 |       };
+      241 |
+    > 242 |       mockCreateTransaction.mockRejectedValue(error);
+          |                             ^
+      243 |
+      244 |       await createTransaction(
+      245 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/transactionController.test.ts:242:29)
+
+  ● Transaction Controller › getTransactions › should return transactions for authenticated user
+
+    TypeError: mockGetAllTransactions.mockResolvedValue is not a function
+
+      276 |         role: 'user',
+      277 |       };
+    > 278 |       mockGetAllTransactions.mockResolvedValue(transactions);
+          |                              ^
+      279 |
+      280 |       await getTransactions(
+      281 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/transactionController.test.ts:278:30)
+
+  ● Transaction Controller › getTransactions › should allow admin to filter by user_id
+
+    expect(received).toHaveBeenCalledWith(...expected)
+
+    Matcher error: received value must be a mock or spy function
+
+    Received has type:  function
+    Received has value: [Function getAllTransactions]
+
+      305 |       );
+      306 |
+    > 307 |       expect(mockGetAllTransactions).toHaveBeenCalledWith(
+          |                                      ^
+      308 |         'other-user-123',
+      309 |         'expense',
+      310 |         undefined,
+
+      at Object.<anonymous> (src/tests/transactionController.test.ts:307:38)
+
+  ● Transaction Controller › getTransactions › should filter by date range
+
+    expect(received).toHaveBeenCalledWith(...expected)
+
+    Matcher error: received value must be a mock or spy function
+
+    Received has type:  function
+    Received has value: [Function getAllTransactions]
+
+      331 |       );
+      332 |
+    > 333 |       expect(mockGetAllTransactions).toHaveBeenCalledWith(
+          |                                      ^
+      334 |         'user-123',
+      335 |         undefined,
+      336 |         undefined,
+
+      at Object.<anonymous> (src/tests/transactionController.test.ts:333:38)
+
+  ● Transaction Controller › getTransactionById › should return transaction by id
+
+    TypeError: mockGetTransactionById.mockResolvedValue is not a function
+
+      356 |
+      357 |       mockRequest.params = { id: 'transaction-123' };
+    > 358 |       mockGetTransactionById.mockResolvedValue(transaction);
+          |                              ^
+      359 |
+      360 |       await getTransactionById(
+      361 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/transactionController.test.ts:358:30)
+
+  ● Transaction Controller › getTransactionById › should return 404 when transaction not found
+
+    TypeError: mockGetTransactionById.mockResolvedValue is not a function
+
+      370 |     it('should return 404 when transaction not found', async () => {
+      371 |       mockRequest.params = { id: 'transaction-123' };
+    > 372 |       mockGetTransactionById.mockResolvedValue(null);
+          |                              ^
+      373 |
+      374 |       await getTransactionById(
+      375 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/transactionController.test.ts:372:30)
+
+  ● Transaction Controller › getTransactionsByUserId › should return transactions for user
+
+    TypeError: mockGetTransactionsByUserId.mockResolvedValue is not a function
+
+      400 |
+      401 |       mockRequest.params = { user_id: 'user-123' };
+    > 402 |       mockGetTransactionsByUserId.mockResolvedValue(transactions);
+          |                                   ^
+      403 |
+      404 |       await getTransactionsByUserId(
+      405 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/transactionController.test.ts:402:35)
+
+  ● Transaction Controller › updateTransaction › should update transaction successfully
+
+    TypeError: mockGetTransactionById.mockResolvedValue is not a function
+
+      452 |       mockRequest.params = { id: 'transaction-123' };
+      453 |       mockRequest.body = { amount: 150 };
+    > 454 |       mockGetTransactionById.mockResolvedValue(existingTransaction);
+          |                              ^
+      455 |       mockUpdateTransaction.mockResolvedValue(updatedTransaction);
+      456 |
+      457 |       await updateTransaction(
+
+      at Object.<anonymous> (src/tests/transactionController.test.ts:454:30)
+
+  ● Transaction Controller › updateTransaction › should return 403 when user does not own transaction
+
+    TypeError: mockGetTransactionById.mockResolvedValue is not a function
+
+      484 |       };
+      485 |       mockRequest.params = { id: 'transaction-123' };
+    > 486 |       mockGetTransactionById.mockResolvedValue(existingTransaction);
+          |                              ^
+      487 |
+      488 |       await updateTransaction(
+      489 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/transactionController.test.ts:486:30)
+
+  ● Transaction Controller › updateTransaction › should return 404 when transaction not found
+
+    TypeError: mockGetTransactionById.mockResolvedValue is not a function
+
+      506 |       };
+      507 |       mockRequest.params = { id: 'transaction-123' };
+    > 508 |       mockGetTransactionById.mockResolvedValue(null);
+          |                              ^
+      509 |
+      510 |       await updateTransaction(
+      511 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/transactionController.test.ts:508:30)
+
+  ● Transaction Controller › deleteTransaction › should delete transaction successfully
+
+    TypeError: mockGetTransactionById.mockResolvedValue is not a function
+
+      539 |       };
+      540 |       mockRequest.params = { id: 'transaction-123' };
+    > 541 |       mockGetTransactionById.mockResolvedValue(existingTransaction);
+          |                              ^
+      542 |       mockDeleteTransaction.mockResolvedValue(true);
+      543 |
+      544 |       await deleteTransaction(
+
+      at Object.<anonymous> (src/tests/transactionController.test.ts:541:30)
+
+  ● Transaction Controller › deleteTransaction › should return 403 when user does not own transaction
+
+    TypeError: mockGetTransactionById.mockResolvedValue is not a function
+
+      571 |       };
+      572 |       mockRequest.params = { id: 'transaction-123' };
+    > 573 |       mockGetTransactionById.mockResolvedValue(existingTransaction);
+          |                              ^
+      574 |
+      575 |       await deleteTransaction(
+      576 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/transactionController.test.ts:573:30)
+
+FAIL src/tests/authController.test.ts
+  ● Console
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+  ● Auth Controller › register › should register a new user successfully
+
+    TypeError: mockValidatePassword.mockReturnValue is not a function
+
+      70 |
+      71 |       mockRequest.body = userData;
+    > 72 |       mockValidatePassword.mockReturnValue({ isValid: true, errors: [] });
+         |                            ^
+      73 |       mockGetUserByEmail.mockResolvedValue(null);
+      74 |       mockHashPassword.mockResolvedValue(hashedPassword);
+      75 |       mockCreateUser.mockResolvedValue(createdUser);
+
+      at Object.<anonymous> (src/tests/authController.test.ts:72:28)
+
+  ● Auth Controller › register › should return 400 for weak password
+
+    TypeError: mockValidatePassword.mockReturnValue is not a function
+
+      143 |       };
+      144 |
+    > 145 |       mockValidatePassword.mockReturnValue({
+          |                            ^
+      146 |         isValid: false,
+      147 |         errors: ['Password must be at least 8 characters long'],
+      148 |       });
+
+      at Object.<anonymous> (src/tests/authController.test.ts:145:28)
+
+  ● Auth Controller › register › should return 409 when email already exists
+
+    TypeError: mockValidatePassword.mockReturnValue is not a function
+
+      214 |       };
+      215 |
+    > 216 |       mockValidatePassword.mockReturnValue({ isValid: true, errors: [] });
+          |                            ^
+      217 |       mockGetUserByEmail.mockResolvedValue(existingUser);
+      218 |
+      219 |       await register(
+
+      at Object.<anonymous> (src/tests/authController.test.ts:216:28)
+
+  ● Auth Controller › register › should handle unique constraint violation
+
+    TypeError: mockValidatePassword.mockReturnValue is not a function
+
+      237 |       };
+      238 |
+    > 239 |       mockValidatePassword.mockReturnValue({ isValid: true, errors: [] });
+          |                            ^
+      240 |       mockGetUserByEmail.mockResolvedValue(null);
+      241 |       mockHashPassword.mockResolvedValue('hashed');
+      242 |       mockCreateUser.mockRejectedValue(error);
+
+      at Object.<anonymous> (src/tests/authController.test.ts:239:28)
+
+  ● Auth Controller › register › should use default currency USD when not provided
+
+    TypeError: mockValidatePassword.mockReturnValue is not a function
+
+      271 |
+      272 |       mockRequest.body = userData;
+    > 273 |       mockValidatePassword.mockReturnValue({ isValid: true, errors: [] });
+          |                            ^
+      274 |       mockGetUserByEmail.mockResolvedValue(null);
+      275 |       mockHashPassword.mockResolvedValue('hashed');
+      276 |       mockCreateUser.mockResolvedValue(createdUser);
+
+      at Object.<anonymous> (src/tests/authController.test.ts:273:28)
+
+  ● Auth Controller › login › should login user successfully
+
+    TypeError: mockGetUserByEmail.mockResolvedValue is not a function
+
+      308 |       };
+      309 |
+    > 310 |       mockGetUserByEmail.mockResolvedValue(user);
+          |                          ^
+      311 |       mockComparePassword.mockResolvedValue(true);
+      312 |       mockGenerateToken.mockReturnValue(token);
+      313 |
+
+      at Object.<anonymous> (src/tests/authController.test.ts:310:26)
+
+  ● Auth Controller › login › should return 401 for non-existent user
+
+    TypeError: mockGetUserByEmail.mockResolvedValue is not a function
+
+      361 |       };
+      362 |
+    > 363 |       mockGetUserByEmail.mockResolvedValue(null);
+          |                          ^
+      364 |
+      365 |       await login(
+      366 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/authController.test.ts:363:26)
+
+  ● Auth Controller › login › should return 401 for incorrect password
+
+    TypeError: mockGetUserByEmail.mockResolvedValue is not a function
+
+      390 |       };
+      391 |
+    > 392 |       mockGetUserByEmail.mockResolvedValue(user);
+          |                          ^
+      393 |       mockComparePassword.mockResolvedValue(false);
+      394 |
+      395 |       await login(
+
+      at Object.<anonymous> (src/tests/authController.test.ts:392:26)
+
+  ● Auth Controller › getCurrentUser › should return current user profile
+
+    TypeError: mockGetUserById.mockResolvedValue is not a function
+
+      435 |       };
+      436 |
+    > 437 |       mockGetUserById.mockResolvedValue(user);
+          |                       ^
+      438 |
+      439 |       await getCurrentUser(
+      440 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/authController.test.ts:437:23)
+
+  ● Auth Controller › getCurrentUser › should return 404 when user not found
+
+    TypeError: mockGetUserById.mockResolvedValue is not a function
+
+      473 |       };
+      474 |
+    > 475 |       mockGetUserById.mockResolvedValue(null);
+          |                       ^
+      476 |
+      477 |       await getCurrentUser(
+      478 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/authController.test.ts:475:23)
+
+FAIL src/tests/userController.test.ts
+  ● Console
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+  ● User Controller › createUser › should create user successfully as admin
+
+    TypeError: mockCreateUser.mockResolvedValue is not a function
+
+      67 |       };
+      68 |       mockRequest.body = userData;
+    > 69 |       mockCreateUser.mockResolvedValue(createdUser);
+         |                      ^
+      70 |
+      71 |       await createUser(
+      72 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/userController.test.ts:69:22)
+
+  ● User Controller › createUser › should return 409 when email already exists
+
+    TypeError: mockCreateUser.mockRejectedValue is not a function
+
+      157 |       };
+      158 |
+    > 159 |       mockCreateUser.mockRejectedValue(error);
+          |                      ^
+      160 |
+      161 |       await createUser(
+      162 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/userController.test.ts:159:22)
+
+  ● User Controller › getUsers › should return all users for admin
+
+    TypeError: mockGetAllUsers.mockResolvedValue is not a function
+
+      200 |         role: 'admin',
+      201 |       };
+    > 202 |       mockGetAllUsers.mockResolvedValue(users);
+          |                       ^
+      203 |
+      204 |       await getUsers(
+      205 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/userController.test.ts:202:23)
+
+  ● User Controller › getUserById › should return user for admin
+
+    TypeError: mockGetUserById.mockResolvedValue is not a function
+
+      251 |       };
+      252 |       mockRequest.params = { id: 'user-123' };
+    > 253 |       mockGetUserById.mockResolvedValue(user);
+          |                       ^
+      254 |
+      255 |       await getUserById(
+      256 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/userController.test.ts:253:23)
+
+  ● User Controller › getUserById › should allow users to view their own profile
+
+    TypeError: mockGetUserById.mockResolvedValue is not a function
+
+      283 |       };
+      284 |       mockRequest.params = { id: 'user-123' };
+    > 285 |       mockGetUserById.mockResolvedValue(user);
+          |                       ^
+      286 |
+      287 |       await getUserById(
+      288 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/userController.test.ts:285:23)
+
+  ● User Controller › getUserById › should return 404 when user not found
+
+    TypeError: mockGetUserById.mockResolvedValue is not a function
+
+      322 |       };
+      323 |       mockRequest.params = { id: 'non-existent' };
+    > 324 |       mockGetUserById.mockResolvedValue(null);
+          |                       ^
+      325 |
+      326 |       await getUserById(
+      327 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/userController.test.ts:324:23)
+
+  ● User Controller › updateUser › should update user successfully
+
+    TypeError: mockGetUserById.mockResolvedValue is not a function
+
+      359 |         currency: 'EUR',
+      360 |       };
+    > 361 |       mockGetUserById.mockResolvedValue({
+          |                       ^
+      362 |         id: 'user-123',
+      363 |         email: 'user@example.com',
+      364 |         full_name: 'User',
+
+      at Object.<anonymous> (src/tests/userController.test.ts:361:23)
+
+  ● User Controller › updateUser › should return 403 when non-admin tries to change role
+
+    TypeError: mockGetUserById.mockResolvedValue is not a function
+
+      391 |       mockRequest.params = { id: 'user-123' };
+      392 |       mockRequest.body = { role: 'admin' };
+    > 393 |       mockGetUserById.mockResolvedValue({
+          |                       ^
+      394 |         id: 'user-123',
+      395 |         email: 'user@example.com',
+      396 |         full_name: 'User',
+
+      at Object.<anonymous> (src/tests/userController.test.ts:393:23)
+
+  ● User Controller › updateUser › should allow admin to change role
+
+    TypeError: mockGetUserById.mockResolvedValue is not a function
+
+      434 |       mockRequest.params = { id: 'user-123' };
+      435 |       mockRequest.body = { role: 'manager' };
+    > 436 |       mockGetUserById.mockResolvedValue({
+          |                       ^
+      437 |         id: 'user-123',
+      438 |         email: 'user@example.com',
+      439 |         full_name: 'User',
+
+      at Object.<anonymous> (src/tests/userController.test.ts:436:23)
+
+  ● User Controller › deleteUser › should delete user successfully as admin
+
+    TypeError: mockDeleteUser.mockResolvedValue is not a function
+
+      464 |       };
+      465 |       mockRequest.params = { id: 'user-123' };
+    > 466 |       mockDeleteUser.mockResolvedValue(true);
+          |                      ^
+      467 |
+      468 |       await deleteUser(
+      469 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/userController.test.ts:466:22)
+
+  ● User Controller › deleteUser › should return 404 when user not found
+
+    TypeError: mockDeleteUser.mockResolvedValue is not a function
+
+      524 |       };
+      525 |       mockRequest.params = { id: 'non-existent' };
+    > 526 |       mockDeleteUser.mockResolvedValue(false);
+          |                      ^
+      527 |
+      528 |       await deleteUser(
+      529 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/userController.test.ts:526:22)
+
+FAIL src/tests/categoryController.test.ts
+  ● Console
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+  ● Category Controller › createCategory › should create category successfully
+
+    TypeError: mockCreateCategory.mockResolvedValue is not a function
+
+      71 |       };
+      72 |       mockRequest.body = categoryData;
+    > 73 |       mockCreateCategory.mockResolvedValue(createdCategory);
+         |                          ^
+      74 |
+      75 |       await createCategory(
+      76 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/categoryController.test.ts:73:26)
+
+  ● Category Controller › createCategory › should return 409 when category already exists
+
+    TypeError: mockCreateCategory.mockRejectedValue is not a function
+
+      184 |       };
+      185 |
+    > 186 |       mockCreateCategory.mockRejectedValue(error);
+          |                          ^
+      187 |
+      188 |       await createCategory(
+      189 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/categoryController.test.ts:186:26)
+
+  ● Category Controller › getCategories › should return categories for authenticated user
+
+    TypeError: mockGetAllCategories.mockResolvedValue is not a function
+
+      217 |         role: 'user',
+      218 |       };
+    > 219 |       mockGetAllCategories.mockResolvedValue(categories);
+          |                            ^
+      220 |
+      221 |       await getCategories(
+      222 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/categoryController.test.ts:219:28)
+
+  ● Category Controller › getCategories › should allow admin to filter by user_id
+
+    expect(received).toHaveBeenCalledWith(...expected)
+
+    Matcher error: received value must be a mock or spy function
+
+    Received has type:  function
+    Received has value: [Function getAllCategories]
+
+      245 |       );
+      246 |
+    > 247 |       expect(mockGetAllCategories).toHaveBeenCalledWith('other-user-123', undefined);
+          |                                    ^
+      248 |     });
+      249 |   });
+      250 |
+
+      at Object.<anonymous> (src/tests/categoryController.test.ts:247:36)
+
+  ● Category Controller › getCategoryById › should return category by id
+
+    TypeError: mockGetCategoryById.mockResolvedValue is not a function
+
+      264 |
+      265 |       mockRequest.params = { id: 'cat-123' };
+    > 266 |       mockGetCategoryById.mockResolvedValue(category);
+          |                           ^
+      267 |
+      268 |       await getCategoryById(
+      269 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/categoryController.test.ts:266:27)
+
+  ● Category Controller › getCategoryById › should return 404 when category not found
+
+    TypeError: mockGetCategoryById.mockResolvedValue is not a function
+
+      278 |     it('should return 404 when category not found', async () => {
+      279 |       mockRequest.params = { id: 'cat-123' };
+    > 280 |       mockGetCategoryById.mockResolvedValue(null);
+          |                           ^
+      281 |
+      282 |       await getCategoryById(
+      283 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/categoryController.test.ts:280:27)
+
+  ● Category Controller › updateCategory › should update category successfully
+
+    TypeError: mockGetCategoryById.mockResolvedValue is not a function
+
+      316 |       mockRequest.params = { id: 'cat-123' };
+      317 |       mockRequest.body = { name: 'New Name' };
+    > 318 |       mockGetCategoryById.mockResolvedValue(existingCategory);
+          |                           ^
+      319 |       mockUpdateCategory.mockResolvedValue(updatedCategory);
+      320 |
+      321 |       await updateCategory(
+
+      at Object.<anonymous> (src/tests/categoryController.test.ts:318:27)
+
+  ● Category Controller › updateCategory › should return 403 when trying to update system category
+
+    TypeError: mockGetCategoryById.mockResolvedValue is not a function
+
+      348 |       };
+      349 |       mockRequest.params = { id: 'cat-123' };
+    > 350 |       mockGetCategoryById.mockResolvedValue(existingCategory);
+          |                           ^
+      351 |
+      352 |       await updateCategory(
+      353 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/categoryController.test.ts:350:27)
+
+  ● Category Controller › updateCategory › should return 403 when user does not own category
+
+    TypeError: mockGetCategoryById.mockResolvedValue is not a function
+
+      379 |       };
+      380 |       mockRequest.params = { id: 'cat-123' };
+    > 381 |       mockGetCategoryById.mockResolvedValue(existingCategory);
+          |                           ^
+      382 |
+      383 |       await updateCategory(
+      384 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/categoryController.test.ts:381:27)
+
+  ● Category Controller › deleteCategory › should delete category successfully
+
+    TypeError: mockGetCategoryById.mockResolvedValue is not a function
+
+      411 |       };
+      412 |       mockRequest.params = { id: 'cat-123' };
+    > 413 |       mockGetCategoryById.mockResolvedValue(existingCategory);
+          |                           ^
+      414 |       mockDeleteCategory.mockResolvedValue(true);
+      415 |
+      416 |       await deleteCategory(
+
+      at Object.<anonymous> (src/tests/categoryController.test.ts:413:27)
+
+  ● Category Controller › deleteCategory › should return 403 when trying to delete system category
+
+    TypeError: mockGetCategoryById.mockResolvedValue is not a function
+
+      443 |       };
+      444 |       mockRequest.params = { id: 'cat-123' };
+    > 445 |       mockGetCategoryById.mockResolvedValue(existingCategory);
+          |                           ^
+      446 |
+      447 |       await deleteCategory(
+      448 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/categoryController.test.ts:445:27)
+
+FAIL src/tests/auth.test.ts
+  ● Console
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+  ● Auth Middleware › authenticate › should authenticate user with valid token
+
+    TypeError: mockVerifyToken.mockReturnValue is not a function
+
+      80 |
+      81 |       mockRequest.headers = { authorization: `Bearer ${token}` };
+    > 82 |       mockVerifyToken.mockReturnValue(decoded);
+         |                       ^
+      83 |       mockGetUserById.mockResolvedValue(user);
+      84 |
+      85 |       await authenticate(
+
+      at Object.<anonymous> (src/tests/auth.test.ts:82:23)
+
+  ● Auth Middleware › authenticate › should return 401 when token is invalid
+
+    TypeError: mockVerifyToken.mockImplementation is not a function
+
+      102 |       const token = 'invalid-token';
+      103 |       mockRequest.headers = { authorization: `Bearer ${token}` };
+    > 104 |       mockVerifyToken.mockImplementation(() => {
+          |                       ^
+      105 |         throw new Error('Invalid token');
+      106 |       });
+      107 |
+
+      at Object.<anonymous> (src/tests/auth.test.ts:104:23)
+
+  ● Auth Middleware › authenticate › should return 401 when user not found
+
+    TypeError: mockVerifyToken.mockReturnValue is not a function
+
+      126 |
+      127 |       mockRequest.headers = { authorization: `Bearer ${token}` };
+    > 128 |       mockVerifyToken.mockReturnValue(decoded);
+          |                       ^
+      129 |       mockGetUserById.mockResolvedValue(null);
+      130 |
+      131 |       await authenticate(
+
+      at Object.<anonymous> (src/tests/auth.test.ts:128:23)
+
+  ● Auth Middleware › authenticate › should call next with error when exception occurs
+
+    TypeError: mockVerifyToken.mockImplementation is not a function
+
+      144 |       mockRequest.headers = { authorization: `Bearer ${token}` };
+      145 |       const error = new Error('Database error');
+    > 146 |       mockVerifyToken.mockImplementation(() => {
+          |                       ^
+      147 |         throw error;
+      148 |       });
+      149 |
+
+      at Object.<anonymous> (src/tests/auth.test.ts:146:23)
+
+FAIL src/tests/initAdmin.test.ts
+  ● Console
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+  ● initializeAdmin › should skip admin creation when ADMIN_EMAIL is not set
+
+    expect(received).not.toHaveBeenCalled()
+
+    Matcher error: received value must be a mock or spy function
+
+    Received has type:  function
+    Received has value: [Function getUserByEmail]
+
+      35 |     await initializeAdmin();
+      36 |
+    > 37 |     expect(mockGetUserByEmail).not.toHaveBeenCalled();
+         |                                    ^
+      38 |     expect(mockCreateUser).not.toHaveBeenCalled();
+      39 |   });
+      40 |
+
+      at Object.<anonymous> (src/tests/initAdmin.test.ts:37:36)
+
+  ● initializeAdmin › should skip admin creation when ADMIN_PASSWORD is not set
+
+    expect(received).not.toHaveBeenCalled()
+
+    Matcher error: received value must be a mock or spy function
+
+    Received has type:  function
+    Received has value: [Function getUserByEmail]
+
+      45 |     await initializeAdmin();
+      46 |
+    > 47 |     expect(mockGetUserByEmail).not.toHaveBeenCalled();
+         |                                    ^
+      48 |     expect(mockCreateUser).not.toHaveBeenCalled();
+      49 |   });
+      50 |
+
+      at Object.<anonymous> (src/tests/initAdmin.test.ts:47:36)
+
+  ● initializeAdmin › should skip admin creation when email format is invalid
+
+    expect(received).not.toHaveBeenCalled()
+
+    Matcher error: received value must be a mock or spy function
+
+    Received has type:  function
+    Received has value: [Function getUserByEmail]
+
+      55 |     await initializeAdmin();
+      56 |
+    > 57 |     expect(mockGetUserByEmail).not.toHaveBeenCalled();
+         |                                    ^
+      58 |     expect(mockCreateUser).not.toHaveBeenCalled();
+      59 |   });
+      60 |
+
+      at Object.<anonymous> (src/tests/initAdmin.test.ts:57:36)
+
+  ● initializeAdmin › should skip admin creation when admin user already exists
+
+    TypeError: mockGetUserByEmail.mockResolvedValue is not a function
+
+      74 |     };
+      75 |
+    > 76 |     mockGetUserByEmail.mockResolvedValue(existingUser);
+         |                        ^
+      77 |
+      78 |     await initializeAdmin();
+      79 |
+
+      at Object.<anonymous> (src/tests/initAdmin.test.ts:76:24)
+
+  ● initializeAdmin › should create admin user when it does not exist
+
+    TypeError: mockGetUserByEmail.mockResolvedValue is not a function
+
+       98 |     };
+       99 |
+    > 100 |     mockGetUserByEmail.mockResolvedValue(null);
+          |                        ^
+      101 |     mockHashPassword.mockResolvedValue(hashedPassword);
+      102 |     mockCreateUser.mockResolvedValue(createdUser);
+      103 |
+
+      at Object.<anonymous> (src/tests/initAdmin.test.ts:100:24)
+
+  ● initializeAdmin › should normalize email to lowercase and trim
+
+    TypeError: mockGetUserByEmail.mockResolvedValue is not a function
+
+      131 |     };
+      132 |
+    > 133 |     mockGetUserByEmail.mockResolvedValue(null);
+          |                        ^
+      134 |     mockHashPassword.mockResolvedValue(hashedPassword);
+      135 |     mockCreateUser.mockResolvedValue(createdUser);
+      136 |
+
+      at Object.<anonymous> (src/tests/initAdmin.test.ts:133:24)
+
+  ● initializeAdmin › should handle unique constraint violation gracefully
+
+    TypeError: mockGetUserByEmail.mockResolvedValue is not a function
+
+      152 |     (error as any).code = '23505';
+      153 |
+    > 154 |     mockGetUserByEmail.mockResolvedValue(null);
+          |                        ^
+      155 |     mockHashPassword.mockResolvedValue('hashed-password');
+      156 |     mockCreateUser.mockRejectedValue(error);
+      157 |
+
+      at Object.<anonymous> (src/tests/initAdmin.test.ts:154:24)
+
+  ● initializeAdmin › should handle other errors gracefully without throwing
+
+    TypeError: mockGetUserByEmail.mockRejectedValue is not a function
+
+      165 |
+      166 |     const error = new Error('Database error');
+    > 167 |     mockGetUserByEmail.mockRejectedValue(error);
+          |                        ^
+      168 |
+      169 |     await expect(initializeAdmin()).resolves.not.toThrow();
+      170 |     expect(console.error).toHaveBeenCalledWith('Error initializing admin user:', error);
+
+      at Object.<anonymous> (src/tests/initAdmin.test.ts:167:24)
+
+FAIL src/tests/budgetController.test.ts
+  ● Console
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+  ● Budget Controller › createBudget › should create budget successfully
+
+    TypeError: mockCreateBudget.mockResolvedValue is not a function
+
+      74 |       };
+      75 |       mockRequest.body = budgetData;
+    > 76 |       mockCreateBudget.mockResolvedValue(createdBudget);
+         |                        ^
+      77 |
+      78 |       await createBudget(
+      79 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/budgetController.test.ts:76:24)
+
+  ● Budget Controller › createBudget › should return 409 when budget already exists
+
+    TypeError: mockCreateBudget.mockRejectedValue is not a function
+
+      183 |       };
+      184 |
+    > 185 |       mockCreateBudget.mockRejectedValue(error);
+          |                        ^
+      186 |
+      187 |       await createBudget(
+      188 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/budgetController.test.ts:185:24)
+
+  ● Budget Controller › getBudgets › should return budgets for authenticated user
+
+    TypeError: mockGetAllBudgets.mockResolvedValue is not a function
+
+      214 |         role: 'user',
+      215 |       };
+    > 216 |       mockGetAllBudgets.mockResolvedValue(budgets);
+          |                         ^
+      217 |
+      218 |       await getBudgets(
+      219 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/budgetController.test.ts:216:25)
+
+  ● Budget Controller › getBudgets › should allow admin to filter by user_id
+
+    expect(received).toHaveBeenCalledWith(...expected)
+
+    Matcher error: received value must be a mock or spy function
+
+    Received has type:  function
+    Received has value: [Function getAllBudgets]
+
+      242 |       );
+      243 |
+    > 244 |       expect(mockGetAllBudgets).toHaveBeenCalledWith('other-user-123', undefined, undefined);
+          |                                 ^
+      245 |     });
+      246 |   });
+      247 |
+
+      at Object.<anonymous> (src/tests/budgetController.test.ts:244:33)
+
+  ● Budget Controller › getBudgetById › should return budget by id
+
+    TypeError: mockGetBudgetById.mockResolvedValue is not a function
+
+      259 |
+      260 |       mockRequest.params = { id: 'budget-123' };
+    > 261 |       mockGetBudgetById.mockResolvedValue(budget);
+          |                         ^
+      262 |
+      263 |       await getBudgetById(
+      264 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/budgetController.test.ts:261:25)
+
+  ● Budget Controller › getBudgetById › should return 404 when budget not found
+
+    TypeError: mockGetBudgetById.mockResolvedValue is not a function
+
+      273 |     it('should return 404 when budget not found', async () => {
+      274 |       mockRequest.params = { id: 'budget-123' };
+    > 275 |       mockGetBudgetById.mockResolvedValue(null);
+          |                         ^
+      276 |
+      277 |       await getBudgetById(
+      278 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/budgetController.test.ts:275:25)
+
+  ● Budget Controller › updateBudget › should update budget successfully
+
+    TypeError: mockGetBudgetById.mockResolvedValue is not a function
+
+      309 |       mockRequest.params = { id: 'budget-123' };
+      310 |       mockRequest.body = { amount: 1500 };
+    > 311 |       mockGetBudgetById.mockResolvedValue(existingBudget);
+          |                         ^
+      312 |       mockUpdateBudget.mockResolvedValue(updatedBudget);
+      313 |
+      314 |       await updateBudget(
+
+      at Object.<anonymous> (src/tests/budgetController.test.ts:311:25)
+
+  ● Budget Controller › updateBudget › should return 403 when user does not own budget
+
+    TypeError: mockGetBudgetById.mockResolvedValue is not a function
+
+      339 |       };
+      340 |       mockRequest.params = { id: 'budget-123' };
+    > 341 |       mockGetBudgetById.mockResolvedValue(existingBudget);
+          |                         ^
+      342 |
+      343 |       await updateBudget(
+      344 |         mockRequest as Request,
+
+      at Object.<anonymous> (src/tests/budgetController.test.ts:341:25)
+
+  ● Budget Controller › deleteBudget › should delete budget successfully
+
+    TypeError: mockGetBudgetById.mockResolvedValue is not a function
+
+      369 |       };
+      370 |       mockRequest.params = { id: 'budget-123' };
+    > 371 |       mockGetBudgetById.mockResolvedValue(existingBudget);
+          |                         ^
+      372 |       mockDeleteBudget.mockResolvedValue(true);
+      373 |
+      374 |       await deleteBudget(
+
+      at Object.<anonymous> (src/tests/budgetController.test.ts:371:25)
+
+FAIL src/tests/jwt.test.ts
+  ● Console
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+  ● JWT Utils › generateToken › should generate a JWT token with correct payload
+
+    TypeError: mockJwt.sign.mockReturnValue is not a function
+
+      29 |     it('should generate a JWT token with correct payload', () => {
+      30 |       const expectedToken = 'generated-token';
+    > 31 |       mockJwt.sign.mockReturnValue(expectedToken as any);
+         |                    ^
+      32 |
+      33 |       const result = generateToken(mockPayload);
+      34 |
+
+      at Object.<anonymous> (src/tests/jwt.test.ts:31:20)
+
+  ● JWT Utils › verifyToken › should verify and return decoded token
+
+    TypeError: mockJwt.verify.mockReturnValue is not a function
+
+      54 |     it('should verify and return decoded token', () => {
+      55 |       const token = 'valid-token';
+    > 56 |       mockJwt.verify.mockReturnValue(mockPayload as any);
+         |                      ^
+      57 |
+      58 |       const result = verifyToken(token);
+      59 |
+
+      at Object.<anonymous> (src/tests/jwt.test.ts:56:22)
+
+  ● JWT Utils › verifyToken › should throw error for invalid token
+
+    TypeError: mockJwt.verify.mockImplementation is not a function
+
+      64 |     it('should throw error for invalid token', () => {
+      65 |       const token = 'invalid-token';
+    > 66 |       mockJwt.verify.mockImplementation(() => {
+         |                      ^
+      67 |         throw new Error('Invalid token');
+      68 |       });
+      69 |
+
+      at Object.<anonymous> (src/tests/jwt.test.ts:66:22)
+
+  ● JWT Utils › verifyToken › should throw error for expired token
+
+    TypeError: mockJwt.verify.mockImplementation is not a function
+
+      73 |     it('should throw error for expired token', () => {
+      74 |       const token = 'expired-token';
+    > 75 |       mockJwt.verify.mockImplementation(() => {
+         |                      ^
+      76 |         throw new Error('Token expired');
+      77 |       });
+      78 |
+
+      at Object.<anonymous> (src/tests/jwt.test.ts:75:22)
+
+  ● JWT Utils › decodeToken › should decode token without verification
+
+    TypeError: mockJwt.decode.mockReturnValue is not a function
+
+      84 |     it('should decode token without verification', () => {
+      85 |       const token = 'some-token';
+    > 86 |       mockJwt.decode.mockReturnValue(mockPayload as any);
+         |                      ^
+      87 |
+      88 |       const result = decodeToken(token);
+      89 |
+
+      at Object.<anonymous> (src/tests/jwt.test.ts:86:22)
+
+  ● JWT Utils › decodeToken › should return null when decode fails
+
+    TypeError: mockJwt.decode.mockReturnValue is not a function
+
+      94 |     it('should return null when decode fails', () => {
+      95 |       const token = 'invalid-token';
+    > 96 |       mockJwt.decode.mockReturnValue(null);
+         |                      ^
+      97 |
+      98 |       const result = decodeToken(token);
+      99 |
+
+      at Object.<anonymous> (src/tests/jwt.test.ts:96:22)
+
+  ● JWT Utils › decodeToken › should return null when decode throws error
+
+    TypeError: mockJwt.decode.mockImplementation is not a function
+
+      103 |     it('should return null when decode throws error', () => {
+      104 |       const token = 'invalid-token';
+    > 105 |       mockJwt.decode.mockImplementation(() => {
+          |                      ^
+      106 |         throw new Error('Decode error');
+      107 |       });
+      108 |
+
+      at Object.<anonymous> (src/tests/jwt.test.ts:105:22)
+
+PASS dist/tests/itemController.test.js
+  ● Console
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.error
+      Error: Database connection failed
+          at Object.<anonymous> (/Users/aspandyar/Projects/finance-hub-backend/src/tests/itemController.test.ts:35:21)
+          at Promise.finally.completed (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+          at _callCircusTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+          at processTicksAndRejections (node:internal/process/task_queues:103:5)
+          at _runTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+          at /Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at run (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+          at jestAdapter (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/runner.js:101:19)
+          at runTestInternal (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-runner/build/index.js:275:16)
+          at runTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-runner/build/index.js:343:7)
+
+      11 |   next: NextFunction
+      12 | ) => {
+    > 13 |   console.error(err);
+         |           ^
+      14 |   res.status(err.status || 500).json({
+      15 |     message: err.message || 'Internal Server Error',
+      16 |   });
+
+      at errorHandler (src/middlewares/errorHandler.ts:13:11)
+      at Layer.handleError (node_modules/router/lib/layer.js:116:17)
+      at trimPrefix (node_modules/router/index.js:340:13)
+      at node_modules/router/index.js:297:9
+      at processParams (node_modules/router/index.js:582:12)
+      at next (node_modules/router/index.js:291:5)
+      at node_modules/router/index.js:688:15
+      at next (node_modules/router/index.js:276:14)
+      at next (node_modules/router/lib/route.js:132:14)
+      at getItems (src/controllers/itemController.ts:34:5)
+
+    console.error
+      Error: Database connection failed
+          at Object.<anonymous> (/Users/aspandyar/Projects/finance-hub-backend/src/tests/itemController.test.ts:74:21)
+          at Promise.finally.completed (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+          at _callCircusTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+          at processTicksAndRejections (node:internal/process/task_queues:103:5)
+          at _runTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+          at /Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at run (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+          at jestAdapter (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/runner.js:101:19)
+          at runTestInternal (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-runner/build/index.js:275:16)
+          at runTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-runner/build/index.js:343:7)
+
+      11 |   next: NextFunction
+      12 | ) => {
+    > 13 |   console.error(err);
+         |           ^
+      14 |   res.status(err.status || 500).json({
+      15 |     message: err.message || 'Internal Server Error',
+      16 |   });
+
+      at errorHandler (src/middlewares/errorHandler.ts:13:11)
+      at Layer.handleError (node_modules/router/lib/layer.js:116:17)
+      at trimPrefix (node_modules/router/index.js:340:13)
+      at node_modules/router/index.js:297:9
+      at processParams (node_modules/router/index.js:582:12)
+      at next (node_modules/router/index.js:291:5)
+      at node_modules/router/index.js:688:15
+      at next (node_modules/router/index.js:276:14)
+      at next (node_modules/router/lib/route.js:132:14)
+      at getItemById (src/controllers/itemController.ts:57:5)
+
+    console.error
+      Error: Database connection failed
+          at Object.<anonymous> (/Users/aspandyar/Projects/finance-hub-backend/src/tests/itemController.test.ts:151:21)
+          at Promise.finally.completed (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+          at _callCircusTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+          at processTicksAndRejections (node:internal/process/task_queues:103:5)
+          at _runTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+          at /Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at run (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+          at jestAdapter (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/runner.js:101:19)
+          at runTestInternal (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-runner/build/index.js:275:16)
+          at runTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-runner/build/index.js:343:7)
+
+      11 |   next: NextFunction
+      12 | ) => {
+    > 13 |   console.error(err);
+         |           ^
+      14 |   res.status(err.status || 500).json({
+      15 |     message: err.message || 'Internal Server Error',
+      16 |   });
+
+      at errorHandler (src/middlewares/errorHandler.ts:13:11)
+      at Layer.handleError (node_modules/router/lib/layer.js:116:17)
+      at trimPrefix (node_modules/router/index.js:340:13)
+      at node_modules/router/index.js:297:9
+      at processParams (node_modules/router/index.js:582:12)
+      at next (node_modules/router/index.js:291:5)
+      at node_modules/router/index.js:688:15
+      at next (node_modules/router/index.js:276:14)
+      at next (node_modules/router/lib/route.js:132:14)
+      at createItem (src/controllers/itemController.ts:20:5)
+
+    console.error
+      Error: Database connection failed
+          at Object.<anonymous> (/Users/aspandyar/Projects/finance-hub-backend/src/tests/itemController.test.ts:200:21)
+          at Promise.finally.completed (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+          at _callCircusTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+          at processTicksAndRejections (node:internal/process/task_queues:103:5)
+          at _runTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+          at /Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at run (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+          at jestAdapter (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/runner.js:101:19)
+          at runTestInternal (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-runner/build/index.js:275:16)
+          at runTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-runner/build/index.js:343:7)
+
+      11 |   next: NextFunction
+      12 | ) => {
+    > 13 |   console.error(err);
+         |           ^
+      14 |   res.status(err.status || 500).json({
+      15 |     message: err.message || 'Internal Server Error',
+      16 |   });
+
+      at errorHandler (src/middlewares/errorHandler.ts:13:11)
+      at Layer.handleError (node_modules/router/lib/layer.js:116:17)
+      at trimPrefix (node_modules/router/index.js:340:13)
+      at node_modules/router/index.js:297:9
+      at processParams (node_modules/router/index.js:582:12)
+      at next (node_modules/router/index.js:291:5)
+      at node_modules/router/index.js:688:15
+      at next (node_modules/router/index.js:276:14)
+      at next (node_modules/router/lib/route.js:132:14)
+      at updateItem (src/controllers/itemController.ts:82:5)
+
+    console.error
+      Error: Database connection failed
+          at Object.<anonymous> (/Users/aspandyar/Projects/finance-hub-backend/src/tests/itemController.test.ts:239:21)
+          at Promise.finally.completed (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+          at _callCircusTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+          at processTicksAndRejections (node:internal/process/task_queues:103:5)
+          at _runTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+          at /Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at run (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+          at jestAdapter (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/runner.js:101:19)
+          at runTestInternal (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-runner/build/index.js:275:16)
+          at runTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-runner/build/index.js:343:7)
+
+      11 |   next: NextFunction
+      12 | ) => {
+    > 13 |   console.error(err);
+         |           ^
+      14 |   res.status(err.status || 500).json({
+      15 |     message: err.message || 'Internal Server Error',
+      16 |   });
+
+      at errorHandler (src/middlewares/errorHandler.ts:13:11)
+      at Layer.handleError (node_modules/router/lib/layer.js:116:17)
+      at trimPrefix (node_modules/router/index.js:340:13)
+      at node_modules/router/index.js:297:9
+      at processParams (node_modules/router/index.js:582:12)
+      at next (node_modules/router/index.js:291:5)
+      at node_modules/router/index.js:688:15
+      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+PASS src/tests/config.test.ts
+  ● Console
+
+    console.log
+      [dotenv@17.2.3] injecting env (6) from .env -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      [dotenv@17.2.3] injecting env (6) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: ✅ audit secrets and track compliance: https://dotenvx.com/ops
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      [dotenv@17.2.3] injecting env (6) from .env -- tip: 📡 add observability to secrets: https://dotenvx.com/ops
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: ⚙️  override existing env vars with { override: true }
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      [dotenv@17.2.3] injecting env (6) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      [dotenv@17.2.3] injecting env (6) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      [dotenv@17.2.3] injecting env (6) from .env -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+PASS dist/tests/config.test.js
+  ● Console
+
+    console.log
+      [dotenv@17.2.3] injecting env (6) from .env -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      [dotenv@17.2.3] injecting env (6) from .env -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: ⚙️  override existing env vars with { override: true }
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      [dotenv@17.2.3] injecting env (6) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      [dotenv@17.2.3] injecting env (6) from .env -- tip: 📡 add observability to secrets: https://dotenvx.com/ops
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      [dotenv@17.2.3] injecting env (6) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      [dotenv@17.2.3] injecting env (6) from .env -- tip: ⚙️  override existing env vars with { override: true }
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+PASS src/tests/database.test.ts
+  ● Console
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: ✅ audit secrets and track compliance: https://dotenvx.com/ops
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+PASS src/tests/errorHandler.test.ts
+  ● Console
+
+    console.error
+      Error: Internal Server Error
+          at Object.<anonymous> (/Users/aspandyar/Projects/finance-hub-backend/src/tests/errorHandler.test.ts:46:19)
+          at Promise.finally.completed (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+          at _callCircusTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+          at _runTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+          at /Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at run (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+          at jestAdapter (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/runner.js:101:19)
+          at runTestInternal (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-runner/build/index.js:275:16)
+          at runTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-runner/build/index.js:343:7)
+
+      11 |   next: NextFunction
+      12 | ) => {
+    > 13 |   console.error(err);
+         |           ^
+      14 |   res.status(err.status || 500).json({
+      15 |     message: err.message || 'Internal Server Error',
+      16 |   });
+
+      at errorHandler (src/middlewares/errorHandler.ts:13:11)
+      at Object.<anonymous> (src/tests/errorHandler.test.ts:48:5)
+
+    console.error
+      Error: 
+          at Object.<anonymous> (/Users/aspandyar/Projects/finance-hub-backend/src/tests/errorHandler.test.ts:62:19)
+          at Promise.finally.completed (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+          at _callCircusTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+          at _runTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+          at /Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at run (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+          at jestAdapter (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/runner.js:101:19)
+          at runTestInternal (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-runner/build/index.js:275:16)
+          at runTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-runner/build/index.js:343:7) {
+        status: 500
+      }
+
+      11 |   next: NextFunction
+      12 | ) => {
+    > 13 |   console.error(err);
+         |           ^
+      14 |   res.status(err.status || 500).json({
+      15 |     message: err.message || 'Internal Server Error',
+      16 |   });
+
+      at errorHandler (src/middlewares/errorHandler.ts:13:11)
+      at Object.<anonymous> (src/tests/errorHandler.test.ts:65:5)
+
+    console.error
+      Error: Bad Request
+          at Object.<anonymous> (/Users/aspandyar/Projects/finance-hub-backend/src/tests/errorHandler.test.ts:79:29)
+          at Promise.finally.completed (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+          at _callCircusTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+          at _runTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+          at /Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at run (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+          at jestAdapter (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/runner.js:101:19)
+          at runTestInternal (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-runner/build/index.js:275:16)
+          at runTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-runner/build/index.js:343:7) {
+        status: 400
+      }
+
+      11 |   next: NextFunction
+      12 | ) => {
+    > 13 |   console.error(err);
+         |           ^
+      14 |   res.status(err.status || 500).json({
+      15 |     message: err.message || 'Internal Server Error',
+      16 |   });
+
+      at errorHandler (src/middlewares/errorHandler.ts:13:11)
+      at Object.<anonymous> (src/tests/errorHandler.test.ts:82:5)
+
+PASS dist/tests/database.test.js
+  ● Console
+
+    console.log
+      [dotenv@17.2.3] injecting env (5) from .env -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+PASS dist/tests/errorHandler.test.js
+  ● Console
+
+    console.error
+      Error: Internal Server Error
+          at Object.<anonymous> (/Users/aspandyar/Projects/finance-hub-backend/src/tests/errorHandler.test.ts:46:19)
+          at Promise.finally.completed (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+          at _callCircusTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+          at _runTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+          at /Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at run (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+          at jestAdapter (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/runner.js:101:19)
+          at runTestInternal (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-runner/build/index.js:275:16)
+          at runTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-runner/build/index.js:343:7)
+
+      11 |   next: NextFunction
+      12 | ) => {
+    > 13 |   console.error(err);
+         |           ^
+      14 |   res.status(err.status || 500).json({
+      15 |     message: err.message || 'Internal Server Error',
+      16 |   });
+
+      at errorHandler (src/middlewares/errorHandler.ts:13:11)
+      at Object.<anonymous> (src/tests/errorHandler.test.ts:48:5)
+
+    console.error
+      Error: 
+          at Object.<anonymous> (/Users/aspandyar/Projects/finance-hub-backend/src/tests/errorHandler.test.ts:62:19)
+          at Promise.finally.completed (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+          at _callCircusTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+          at _runTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+          at /Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at run (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+          at jestAdapter (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/runner.js:101:19)
+          at runTestInternal (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-runner/build/index.js:275:16)
+          at runTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-runner/build/index.js:343:7) {
+        status: 500
+      }
+
+      11 |   next: NextFunction
+      12 | ) => {
+    > 13 |   console.error(err);
+         |           ^
+      14 |   res.status(err.status || 500).json({
+      15 |     message: err.message || 'Internal Server Error',
+      16 |   });
+
+      at errorHandler (src/middlewares/errorHandler.ts:13:11)
+      at Object.<anonymous> (src/tests/errorHandler.test.ts:65:5)
+
+    console.error
+      Error: Bad Request
+          at Object.<anonymous> (/Users/aspandyar/Projects/finance-hub-backend/src/tests/errorHandler.test.ts:79:29)
+          at Promise.finally.completed (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+          at _callCircusTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+          at _runTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+          at /Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at run (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+          at jestAdapter (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-circus/build/runner.js:101:19)
+          at runTestInternal (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-runner/build/index.js:275:16)
+          at runTest (/Users/aspandyar/Projects/finance-hub-backend/node_modules/jest-runner/build/index.js:343:7) {
+        status: 400
+      }
+
+      11 |   next: NextFunction
+      12 | ) => {
+    > 13 |   console.error(err);
+         |           ^
+      14 |   res.status(err.status || 500).json({
+      15 |     message: err.message || 'Internal Server Error',
+      16 |   });
+
+      at errorHandler (src/middlewares/errorHandler.ts:13:11)
+      at Object.<anonymous> (src/tests/errorHandler.test.ts:82:5)
+
+PASS dist/tests/item.test.js
+
+Test Suites: 10 failed, 8 passed, 18 total
+Tests:       87 failed, 139 passed, 226 total
+Snapshots:   0 total
+Time:        1.876 s
+Ran all test suites.
+Jest did not exit one second after the test run has completed.
+
+'This usually means that there are asynchronous operations that weren't stopped in your tests. Consider running Jest with `--detectOpenHandles` to troubleshoot this issue.
