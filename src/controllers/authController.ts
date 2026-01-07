@@ -2,9 +2,8 @@ import type { Request, Response, NextFunction } from 'express';
 import { UserModel } from '../models/models.js';
 import { hashPassword, comparePassword, validatePassword } from '../utils/password.js';
 import { generateToken } from '../utils/jwt.js';
-
-// Email validation regex
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { validateEmailForAuth, validatePasswordForAuth, validateFullName } from '../validations/user.js';
+import { handleUniqueConstraintError } from '../utils/prismaErrors.js';
 
 // Register a new user
 export const register = async (
@@ -16,13 +15,13 @@ export const register = async (
     const { email, password, full_name, currency } = req.body;
 
     // Validate email
-    if (!email || typeof email !== 'string' || !EMAIL_REGEX.test(email)) {
-      return res.status(400).json({ error: 'Valid email is required' });
+    if (!validateEmailForAuth(email, res)) {
+      return;
     }
 
     // Validate password
-    if (!password || typeof password !== 'string') {
-      return res.status(400).json({ error: 'Password is required' });
+    if (!validatePasswordForAuth(password, res)) {
+      return;
     }
 
     const passwordValidation = validatePassword(password);
@@ -34,11 +33,8 @@ export const register = async (
     }
 
     // Validate full_name
-    if (!full_name || typeof full_name !== 'string' || full_name.trim().length === 0) {
-      return res.status(400).json({ error: 'Full name is required' });
-    }
-    if (full_name.trim().length > 100) {
-      return res.status(400).json({ error: 'Full name must be 100 characters or less' });
+    if (!validateFullName(full_name, res, 100)) {
+      return;
     }
 
     // Check if user already exists
@@ -75,8 +71,8 @@ export const register = async (
     });
   } catch (error: any) {
     // Handle unique constraint violation
-    if (error.code === '23505') {
-      return res.status(409).json({ error: 'Email already registered' });
+    if (handleUniqueConstraintError(error, res, 'Email already registered')) {
+      return;
     }
     next(error);
   }
@@ -92,13 +88,13 @@ export const login = async (
     const { email, password } = req.body;
 
     // Validate email
-    if (!email || typeof email !== 'string') {
-      return res.status(400).json({ error: 'Email is required' });
+    if (!validateEmailForAuth(email, res)) {
+      return;
     }
 
     // Validate password
-    if (!password || typeof password !== 'string') {
-      return res.status(400).json({ error: 'Password is required' });
+    if (!validatePasswordForAuth(password, res)) {
+      return;
     }
 
     // Find user by email

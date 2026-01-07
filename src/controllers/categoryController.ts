@@ -1,27 +1,9 @@
 import type { Request, Response, NextFunction } from 'express';
 import { CategoryModel } from '../models/models.js';
+import { isValidUUID } from '../validations/common.js';
+import { validateCreateCategory, validateUpdateCategory } from '../validations/category.js';
 import type { CategoryType } from '../models/category.js';
-
-// UUID validation regex
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-// Hex color validation regex (# followed by 6 hex digits)
-const HEX_COLOR_REGEX = /^#[0-9A-F]{6}$/i;
-
-// Validate UUID
-const isValidUUID = (id: string): boolean => {
-  return UUID_REGEX.test(id);
-};
-
-// Validate category type
-const isValidCategoryType = (type: string): type is CategoryType => {
-  return type === 'income' || type === 'expense';
-};
-
-// Validate hex color
-const isValidHexColor = (color: string): boolean => {
-  return HEX_COLOR_REGEX.test(color);
-};
+import { isValidCategoryType } from '../validations/category.js';
 
 // Create a category
 export const createCategory = async (
@@ -36,42 +18,12 @@ export const createCategory = async (
 
     const { name, type, color, icon } = req.body;
 
-    // Validate name
-    if (!name || typeof name !== 'string' || name.trim().length === 0) {
-      return res.status(400).json({ error: 'Category name is required' });
-    }
-    if (name.trim().length > 50) {
-      return res
-        .status(400)
-        .json({ error: 'Category name must be 50 characters or less' });
-    }
-
-    // Validate type
-    if (!type || !isValidCategoryType(type)) {
-      return res
-        .status(400)
-        .json({ error: "Category type must be 'income' or 'expense'" });
-    }
-
     // Use authenticated user's ID (users can only create categories for themselves)
     const user_id = req.user.id;
 
-    // Validate color if provided
-    if (color !== undefined) {
-      if (typeof color !== 'string' || !isValidHexColor(color)) {
-        return res
-          .status(400)
-          .json({ error: 'Color must be a valid hex color (e.g., #6B7280)' });
-      }
-    }
-
-    // Validate icon if provided
-    if (icon !== undefined && icon !== null) {
-      if (typeof icon !== 'string' || icon.length > 50) {
-        return res
-          .status(400)
-          .json({ error: 'Icon must be a string with 50 characters or less' });
-      }
+    // Validate all fields
+    if (!validateCreateCategory({ name, type, color, icon }, res)) {
+      return;
     }
 
     const category = await CategoryModel.createCategory({
@@ -248,41 +200,9 @@ export const updateCategory = async (
 
     const { name, type, color, icon } = req.body;
 
-    // Validate name if provided
-    if (name !== undefined) {
-      if (typeof name !== 'string' || name.trim().length === 0) {
-        return res.status(400).json({ error: 'Category name cannot be empty' });
-      }
-      if (name.trim().length > 50) {
-        return res
-          .status(400)
-          .json({ error: 'Category name must be 50 characters or less' });
-      }
-    }
-
-    // Validate type if provided
-    if (type !== undefined && !isValidCategoryType(type)) {
-      return res
-        .status(400)
-        .json({ error: "Category type must be 'income' or 'expense'" });
-    }
-
-    // Validate color if provided
-    if (color !== undefined) {
-      if (typeof color !== 'string' || !isValidHexColor(color)) {
-        return res
-          .status(400)
-          .json({ error: 'Color must be a valid hex color (e.g., #6B7280)' });
-      }
-    }
-
-    // Validate icon if provided
-    if (icon !== undefined && icon !== null) {
-      if (typeof icon !== 'string' || icon.length > 50) {
-        return res
-          .status(400)
-          .json({ error: 'Icon must be a string with 50 characters or less' });
-      }
+    // Validate all fields
+    if (!validateUpdateCategory({ name, type, color, icon }, res)) {
+      return;
     }
 
     const category = await CategoryModel.updateCategory(id, {

@@ -1,43 +1,9 @@
 import type { Request, Response, NextFunction } from 'express';
-import { TransactionModel, CategoryModel } from '../models/models.js';
+import { TransactionModel } from '../models/models.js';
 import type { TransactionType } from '../models/transaction.js';
 import { handleForeignKeyError } from '../utils/prismaErrors.js';
-
-// UUID validation regex
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-// Date validation regex (YYYY-MM-DD)
-const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
-
-// Validate UUID
-const isValidUUID = (id: string): boolean => {
-  return UUID_REGEX.test(id);
-};
-
-// Validate transaction type
-const isValidTransactionType = (type: string): type is TransactionType => {
-  return type === 'income' || type === 'expense';
-};
-
-// Validate date format (YYYY-MM-DD)
-const isValidDate = (date: string): boolean => {
-  if (!DATE_REGEX.test(date)) {
-    return false;
-  }
-  const d = new Date(date);
-  return d instanceof Date && !isNaN(d.getTime());
-};
-
-// Validate amount (must be positive number)
-const isValidAmount = (amount: any): amount is number => {
-  return (
-    typeof amount === 'number' &&
-    !isNaN(amount) &&
-    isFinite(amount) &&
-    amount > 0 &&
-    amount <= 9999999999.99 // Max value for DECIMAL(12,2)
-  );
-};
+import { isValidUUID, isValidDate } from '../validations/common.js';
+import { isValidTransactionType, validateCreateTransaction, validateUpdateTransaction } from '../validations/transaction.js';
 
 // Create a transaction
 export const createTransaction = async (
@@ -55,62 +21,9 @@ export const createTransaction = async (
     // Use authenticated user's ID (users can only create transactions for themselves)
     const user_id = req.user.id;
 
-    // Validate category_id
-    if (
-      !category_id ||
-      typeof category_id !== 'string' ||
-      !isValidUUID(category_id)
-    ) {
-      return res.status(400).json({ error: 'Valid category ID is required' });
-    }
-
-    // Validate amount
-    if (!isValidAmount(amount)) {
-      return res
-        .status(400)
-        .json({
-          error:
-            'Amount must be a positive number less than or equal to 9999999999.99',
-        });
-    }
-
-    // Validate type
-    if (!type || !isValidTransactionType(type)) {
-      return res
-        .status(400)
-        .json({ error: "Transaction type must be 'income' or 'expense'" });
-    }
-
-    // Validate date
-    if (!date || typeof date !== 'string' || !isValidDate(date)) {
-      return res
-        .status(400)
-        .json({ error: 'Valid date is required (format: YYYY-MM-DD)' });
-    }
-
-    // Validate description if provided
-    if (description !== undefined && description !== null) {
-      if (typeof description !== 'string') {
-        return res
-          .status(400)
-          .json({ error: 'Description must be a string' });
-      }
-    }
-
-    // Validate that transaction type matches category type
-    const category = await CategoryModel.getCategoryById(category_id);
-    if (!category) {
-      return res.status(400).json({
-        error: 'Invalid category_id',
-        message: 'The specified category does not exist',
-      });
-    }
-
-    if (category.type !== type) {
-      return res.status(400).json({
-        error: 'Transaction type mismatch',
-        message: `Transaction type must match category type. Category is of type '${category.type}', but transaction type is '${type}'`,
-      });
+    // Validate all fields
+    if (!(await validateCreateTransaction({ category_id, amount, type, date, description }, res))) {
+      return;
     }
 
     const transaction = await TransactionModel.createTransaction({
@@ -297,69 +210,14 @@ export const updateTransaction = async (
 
     const { category_id, amount, type, description, date } = req.body;
 
-    // Validate category_id if provided
-    if (category_id !== undefined) {
-      if (typeof category_id !== 'string' || !isValidUUID(category_id)) {
-        return res.status(400).json({ error: 'Invalid category ID format' });
-      }
-    }
-
-    // Validate amount if provided
-    if (amount !== undefined && !isValidAmount(amount)) {
-      return res
-        .status(400)
-        .json({
-          error:
-            'Amount must be a positive number less than or equal to 9999999999.99',
-        });
-    }
-
-    // Validate type if provided
-    if (type !== undefined && !isValidTransactionType(type)) {
-      return res
-        .status(400)
-        .json({ error: "Transaction type must be 'income' or 'expense'" });
-    }
-
-    // Validate date if provided
-    if (date !== undefined) {
-      if (typeof date !== 'string' || !isValidDate(date)) {
-        return res
-          .status(400)
-          .json({ error: 'Invalid date format (expected: YYYY-MM-DD)' });
-      }
-    }
-
-    // Validate description if provided
-    if (description !== undefined && description !== null) {
-      if (typeof description !== 'string') {
-        return res
-          .status(400)
-          .json({ error: 'Description must be a string' });
-      }
-    }
-
-    // Validate that transaction type matches category type
-    // Determine which category to check (new category_id if provided, otherwise existing)
-    const categoryIdToCheck = category_id || existingTransaction.categoryId;
-    const typeToCheck = type || existingTransaction.type;
-
-    // Only validate if either category_id or type is being updated
-    if (category_id !== undefined || type !== undefined) {
-      const category = await CategoryModel.getCategoryById(categoryIdToCheck);
-      if (!category) {
-        return res.status(400).json({
-          error: 'Invalid category_id',
-          message: 'The specified category does not exist',
-        });
-      }
-
-      if (category.type !== typeToCheck) {
-        return res.status(400).json({
-          error: 'Transaction type mismatch',
-          message: `Transaction type must match category type. Category is of type '${category.type}', but transaction type is '${typeToCheck}'`,
-        });
-      }
+    // Validate all fields
+    if (!(await validateUpdateTransaction(
+      { category_id, amount, type, date, description },
+      existingTransaction.categoryId,
+      existingTransaction.type,
+      res
+    ))) {
+      return;
     }
 
     const transaction = await TransactionModel.updateTransaction(id, {

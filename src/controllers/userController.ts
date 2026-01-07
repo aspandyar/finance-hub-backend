@@ -1,5 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import { UserModel } from '../models/models.js';
+import { validateUserId, validateCreateUser, validateUpdateUser } from '../validations/user.js';
+import { handleUniqueConstraintError } from '../utils/prismaErrors.js';
 
 // Create a user (admin/manager only - regular users should use /api/auth/register)
 export const createUser = async (
@@ -22,46 +24,9 @@ export const createUser = async (
 
     const { email, password_hash, full_name, currency, role } = req.body;
 
-    if (!email || typeof email !== 'string' || email.trim().length === 0) {
-      return res.status(400).json({ error: 'Email is required' });
-    }
-
-    if (
-      !password_hash ||
-      typeof password_hash !== 'string' ||
-      password_hash.trim().length === 0
-    ) {
-      return res.status(400).json({ error: 'Password hash is required' });
-    }
-
-    if (
-      !full_name ||
-      typeof full_name !== 'string' ||
-      full_name.trim().length === 0
-    ) {
-      return res.status(400).json({ error: 'Full name is required' });
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.trim())) {
-      return res.status(400).json({ error: 'Invalid email format' });
-    }
-
-    // Validate currency if provided
-    if (currency && (typeof currency !== 'string' || currency.length !== 3)) {
-      return res.status(400).json({
-        error: 'Currency must be a 3-character code (e.g., USD)',
-      });
-    }
-
-    // Validate role if provided
-    if (role !== undefined) {
-      if (!['admin', 'manager', 'user'].includes(role)) {
-        return res.status(400).json({
-          error: 'Role must be admin, manager, or user',
-        });
-      }
+    // Validate all fields
+    if (!validateCreateUser({ email, password_hash, full_name, currency, role }, res)) {
+      return;
     }
 
     const user = await UserModel.createUser({
@@ -74,8 +39,8 @@ export const createUser = async (
     res.status(201).json(user);
   } catch (error: any) {
     // Handle unique constraint violation
-    if (error.code === '23505' && error.constraint === 'users_email_key') {
-      return res.status(409).json({ error: 'Email already exists' });
+    if (handleUniqueConstraintError(error, res, 'Email already exists')) {
+      return;
     }
     next(error);
   }
@@ -160,13 +125,15 @@ export const updateUser = async (
     }
 
     const { id } = req.params;
-    if (!id || typeof id !== 'string') {
-      return res.status(400).json({ error: 'Invalid user ID' });
+    if (!validateUserId(id, res)) {
+      return;
     }
+    // TypeScript now knows id is a string after validateUserId check
+    const userId = id as string;
 
     // Regular users can only update their own profile
     if (req.user.role !== 'admin' && req.user.role !== 'manager') {
-      if (id !== req.user.id) {
+      if (userId !== req.user.id) {
         return res.status(403).json({
           error: 'Access denied',
           message: 'You can only update your own profile',
@@ -176,46 +143,6 @@ export const updateUser = async (
 
     const { email, password_hash, full_name, currency, role } = req.body;
 
-    // Validate email format if provided
-    if (email !== undefined) {
-      if (typeof email !== 'string' || email.trim().length === 0) {
-        return res.status(400).json({ error: 'Email must be a non-empty string' });
-      }
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email.trim())) {
-        return res.status(400).json({ error: 'Invalid email format' });
-      }
-    }
-
-    // Validate password_hash if provided
-    if (
-      password_hash !== undefined &&
-      (typeof password_hash !== 'string' || password_hash.trim().length === 0)
-    ) {
-      return res.status(400).json({
-        error: 'Password hash must be a non-empty string',
-      });
-    }
-
-    // Validate full_name if provided
-    if (
-      full_name !== undefined &&
-      (typeof full_name !== 'string' || full_name.trim().length === 0)
-    ) {
-      return res.status(400).json({
-        error: 'Full name must be a non-empty string',
-      });
-    }
-
-    // Validate currency if provided
-    if (currency !== undefined) {
-      if (typeof currency !== 'string' || currency.length !== 3) {
-        return res.status(400).json({
-          error: 'Currency must be a 3-character code (e.g., USD)',
-        });
-      }
-    }
-
     // Only admin can change roles
     if (role !== undefined) {
       if (req.user.role !== 'admin') {
@@ -224,11 +151,11 @@ export const updateUser = async (
           message: 'Only admin can change user roles',
         });
       }
-      if (!['admin', 'manager', 'user'].includes(role)) {
-        return res.status(400).json({
-          error: 'Role must be admin, manager, or user',
-        });
-      }
+    }
+
+    // Validate all fields
+    if (!validateUpdateUser({ email, password_hash, full_name, currency, role }, res)) {
+      return;
     }
 
     const updateData: any = {};
@@ -248,7 +175,7 @@ export const updateUser = async (
       updateData.role = role;
     }
 
-    const user = await UserModel.updateUser(id, updateData);
+    const user = await UserModel.updateUser(userId, updateData);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -258,8 +185,8 @@ export const updateUser = async (
     res.json(userWithoutPassword);
   } catch (error: any) {
     // Handle unique constraint violation
-    if (error.code === '23505' && error.constraint === 'users_email_key') {
-      return res.status(409).json({ error: 'Email already exists' });
+    if (handleUniqueConstraintError(error, res, 'Email already exists')) {
+      return;
     }
     next(error);
   }

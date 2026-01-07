@@ -1,56 +1,10 @@
 import type { Request, Response, NextFunction } from 'express';
-import { RecurringTransactionModel, CategoryModel } from '../models/models.js';
+import { RecurringTransactionModel } from '../models/models.js';
 import { handleForeignKeyError } from '../utils/prismaErrors.js';
-import type {
-  TransactionType,
-  FrequencyType,
-} from '../models/recurringTransaction.js';
+import { isValidUUID, isValidDate } from '../validations/common.js';
+import { validateCreateRecurringTransaction, validateUpdateRecurringTransaction } from '../validations/recurringTransaction.js';
+import type { TransactionType, FrequencyType } from '../models/recurringTransaction.js';
 
-// UUID validation regex
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-// Date validation regex (YYYY-MM-DD)
-const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
-
-// Validate UUID
-const isValidUUID = (id: string): boolean => {
-  return UUID_REGEX.test(id);
-};
-
-// Validate transaction type
-const isValidTransactionType = (type: string): type is TransactionType => {
-  return type === 'income' || type === 'expense';
-};
-
-// Validate frequency type
-const isValidFrequencyType = (frequency: string): frequency is FrequencyType => {
-  return (
-    frequency === 'daily' ||
-    frequency === 'weekly' ||
-    frequency === 'monthly' ||
-    frequency === 'yearly'
-  );
-};
-
-// Validate date format (YYYY-MM-DD)
-const isValidDate = (date: string): boolean => {
-  if (!DATE_REGEX.test(date)) {
-    return false;
-  }
-  const d = new Date(date);
-  return d instanceof Date && !isNaN(d.getTime());
-};
-
-// Validate amount (must be positive number)
-const isValidAmount = (amount: any): amount is number => {
-  return (
-    typeof amount === 'number' &&
-    !isNaN(amount) &&
-    isFinite(amount) &&
-    amount > 0 &&
-    amount <= 9999999999.99 // Max value for DECIMAL(12,2)
-  );
-};
 
 // Create a recurring transaction
 export const createRecurringTransaction = async (
@@ -78,98 +32,19 @@ export const createRecurringTransaction = async (
     // Use authenticated user's ID (users can only create recurring transactions for themselves)
     const user_id = req.user.id;
 
-    // Validate category_id
-    if (
-      !category_id ||
-      typeof category_id !== 'string' ||
-      !isValidUUID(category_id)
-    ) {
-      return res.status(400).json({ error: 'Valid category ID is required' });
-    }
-
-    // Validate amount
-    if (!isValidAmount(amount)) {
-      return res
-        .status(400)
-        .json({
-          error:
-            'Amount must be a positive number less than or equal to 9999999999.99',
-        });
-    }
-
-    // Validate type
-    if (!type || !isValidTransactionType(type)) {
-      return res
-        .status(400)
-        .json({ error: "Transaction type must be 'income' or 'expense'" });
-    }
-
-    // Validate frequency
-    if (!frequency || !isValidFrequencyType(frequency)) {
-      return res
-        .status(400)
-        .json({
-          error: "Frequency must be 'daily', 'weekly', 'monthly', or 'yearly'",
-        });
-    }
-
-    // Validate start_date
-    if (!start_date || typeof start_date !== 'string' || !isValidDate(start_date)) {
-      return res
-        .status(400)
-        .json({ error: 'Valid start_date is required (format: YYYY-MM-DD)' });
-    }
-
-    // Validate next_occurrence
-    if (
-      !next_occurrence ||
-      typeof next_occurrence !== 'string' ||
-      !isValidDate(next_occurrence)
-    ) {
-      return res
-        .status(400)
-        .json({
-          error: 'Valid next_occurrence is required (format: YYYY-MM-DD)',
-        });
-    }
-
-    // Validate end_date if provided
-    if (end_date !== undefined && end_date !== null) {
-      if (typeof end_date !== 'string' || !isValidDate(end_date)) {
-        return res
-          .status(400)
-          .json({ error: 'Invalid end_date format (expected: YYYY-MM-DD)' });
-      }
-    }
-
-    // Validate description if provided
-    if (description !== undefined && description !== null) {
-      if (typeof description !== 'string') {
-        return res
-          .status(400)
-          .json({ error: 'Description must be a string' });
-      }
-    }
-
-    // Validate is_active if provided
-    if (is_active !== undefined && typeof is_active !== 'boolean') {
-      return res.status(400).json({ error: 'is_active must be a boolean' });
-    }
-
-    // Validate that transaction type matches category type
-    const category = await CategoryModel.getCategoryById(category_id);
-    if (!category) {
-      return res.status(400).json({
-        error: 'Invalid category_id',
-        message: 'The specified category does not exist',
-      });
-    }
-
-    if (category.type !== type) {
-      return res.status(400).json({
-        error: 'Transaction type mismatch',
-        message: `Transaction type must match category type. Category is of type '${category.type}', but transaction type is '${type}'`,
-      });
+    // Validate all fields
+    if (!(await validateCreateRecurringTransaction({
+      category_id,
+      amount,
+      type,
+      frequency,
+      start_date,
+      end_date,
+      next_occurrence,
+      description,
+      is_active,
+    }, res))) {
+      return;
     }
 
     const recurringTransaction =
@@ -413,127 +288,53 @@ export const updateRecurringTransaction = async (
       is_active?: boolean;
     } = {};
 
-    // Validate category_id if provided
+    // Validate all fields
+    if (!(await validateUpdateRecurringTransaction(
+      {
+        category_id,
+        amount,
+        type,
+        frequency,
+        start_date,
+        end_date,
+        next_occurrence,
+        description,
+        is_active,
+      },
+      existingRecurringTransaction.categoryId,
+      existingRecurringTransaction.type,
+      res
+    ))) {
+      return;
+    }
+
+    // Build update object, only including defined properties
     if (category_id !== undefined) {
-      if (typeof category_id !== 'string' || !isValidUUID(category_id)) {
-        return res.status(400).json({ error: 'Invalid category ID format' });
-      }
       updateData.category_id = category_id;
     }
-
-    // Validate amount if provided
     if (amount !== undefined) {
-      if (!isValidAmount(amount)) {
-        return res
-          .status(400)
-          .json({
-            error:
-              'Amount must be a positive number less than or equal to 9999999999.99',
-          });
-      }
       updateData.amount = amount;
     }
-
-    // Validate type if provided
     if (type !== undefined) {
-      if (!isValidTransactionType(type)) {
-        return res
-          .status(400)
-          .json({ error: "Transaction type must be 'income' or 'expense'" });
-      }
       updateData.type = type;
     }
-
-    // Validate frequency if provided
     if (frequency !== undefined) {
-      if (!isValidFrequencyType(frequency)) {
-        return res
-          .status(400)
-          .json({
-            error:
-              "Frequency must be 'daily', 'weekly', 'monthly', or 'yearly'",
-          });
-      }
       updateData.frequency = frequency;
     }
-
-    // Validate start_date if provided
     if (start_date !== undefined) {
-      if (typeof start_date !== 'string' || !isValidDate(start_date)) {
-        return res
-          .status(400)
-          .json({ error: 'Invalid start_date format (expected: YYYY-MM-DD)' });
-      }
       updateData.start_date = start_date;
     }
-
-    // Validate end_date if provided
     if (end_date !== undefined) {
-      if (end_date === null) {
-        updateData.end_date = null;
-      } else if (typeof end_date === 'string' && isValidDate(end_date)) {
-        updateData.end_date = end_date;
-      } else {
-        return res
-          .status(400)
-          .json({ error: 'Invalid end_date format (expected: YYYY-MM-DD)' });
-      }
+      updateData.end_date = end_date;
     }
-
-    // Validate next_occurrence if provided
     if (next_occurrence !== undefined) {
-      if (typeof next_occurrence !== 'string' || !isValidDate(next_occurrence)) {
-        return res
-          .status(400)
-          .json({
-            error: 'Invalid next_occurrence format (expected: YYYY-MM-DD)',
-          });
-      }
       updateData.next_occurrence = next_occurrence;
     }
-
-    // Validate description if provided
     if (description !== undefined) {
-      if (description === null) {
-        updateData.description = null;
-      } else if (typeof description === 'string') {
-        updateData.description = description;
-      } else {
-        return res
-          .status(400)
-          .json({ error: 'Description must be a string' });
-      }
+      updateData.description = description;
     }
-
-    // Validate is_active if provided
     if (is_active !== undefined) {
-      if (typeof is_active !== 'boolean') {
-        return res.status(400).json({ error: 'is_active must be a boolean' });
-      }
       updateData.is_active = is_active;
-    }
-
-    // Validate that transaction type matches category type
-    // Determine which category to check (new category_id if provided, otherwise existing)
-    const categoryIdToCheck = category_id || existingRecurringTransaction.categoryId;
-    const typeToCheck = type || existingRecurringTransaction.type;
-
-    // Only validate if either category_id or type is being updated
-    if (category_id !== undefined || type !== undefined) {
-      const category = await CategoryModel.getCategoryById(categoryIdToCheck);
-      if (!category) {
-        return res.status(400).json({
-          error: 'Invalid category_id',
-          message: 'The specified category does not exist',
-        });
-      }
-
-      if (category.type !== typeToCheck) {
-        return res.status(400).json({
-          error: 'Transaction type mismatch',
-          message: `Transaction type must match category type. Category is of type '${category.type}', but transaction type is '${typeToCheck}'`,
-        });
-      }
     }
 
     const recurringTransaction =
