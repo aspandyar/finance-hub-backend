@@ -1,44 +1,8 @@
 import type { Request, Response, NextFunction } from 'express';
 import { BudgetModel } from '../models/models.js';
-
-// UUID validation regex
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-// Date validation regex (YYYY-MM-DD)
-const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
-
-// Validate UUID
-const isValidUUID = (id: string): boolean => {
-  return UUID_REGEX.test(id);
-};
-
-// Validate date format (YYYY-MM-DD)
-const isValidDate = (date: string): boolean => {
-  if (!DATE_REGEX.test(date)) {
-    return false;
-  }
-  const d = new Date(date);
-  return d instanceof Date && !isNaN(d.getTime());
-};
-
-// Normalize date to first day of month (YYYY-MM-01)
-const normalizeMonth = (date: string): string => {
-  const d = new Date(date);
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  return `${year}-${month}-01`;
-};
-
-// Validate amount (must be positive number)
-const isValidAmount = (amount: any): amount is number => {
-  return (
-    typeof amount === 'number' &&
-    !isNaN(amount) &&
-    isFinite(amount) &&
-    amount > 0 &&
-    amount <= 9999999999.99 // Max value for DECIMAL(12,2)
-  );
-};
+import { handleForeignKeyError, handleUniqueConstraintError } from '../utils/prismaErrors.js';
+import { isValidUUID, isValidDate, normalizeMonth } from '../validations/common.js';
+import { validateCreateBudget, validateUpdateBudget } from '../validations/budget.js';
 
 // Create a budget
 export const createBudget = async (
@@ -56,34 +20,12 @@ export const createBudget = async (
     // Use authenticated user's ID (users can only create budgets for themselves)
     const user_id = req.user.id;
 
-    // Validate category_id
-    if (
-      !category_id ||
-      typeof category_id !== 'string' ||
-      !isValidUUID(category_id)
-    ) {
-      return res.status(400).json({ error: 'Valid category ID is required' });
+    // Validate all fields
+    const validation = validateCreateBudget({ category_id, amount, month }, res);
+    if (!validation.isValid) {
+      return;
     }
-
-    // Validate amount
-    if (!isValidAmount(amount)) {
-      return res
-        .status(400)
-        .json({
-          error:
-            'Amount must be a positive number less than or equal to 9999999999.99',
-        });
-    }
-
-    // Validate month
-    if (!month || typeof month !== 'string' || !isValidDate(month)) {
-      return res
-        .status(400)
-        .json({ error: 'Valid month is required (format: YYYY-MM-DD)' });
-    }
-
-    // Normalize month to first day
-    const normalizedMonth = normalizeMonth(month);
+    const normalizedMonth = validation.normalizedMonth!;
 
     const budget = await BudgetModel.createBudget({
       user_id,
@@ -95,17 +37,16 @@ export const createBudget = async (
     res.status(201).json(budget);
   } catch (error: any) {
     // Handle unique constraint violation
-    if (error.code === '23505') {
-      return res.status(409).json({
-        error:
-          'A budget for this user, category, and month already exists',
-      });
+    if (handleUniqueConstraintError(
+      error,
+      res,
+      'A budget for this user, category, and month already exists'
+    )) {
+      return;
     }
     // Handle foreign key constraint violations
-    if (error.code === '23503') {
-      return res.status(400).json({
-        error: 'Invalid user_id or category_id',
-      });
+    if (handleForeignKeyError(error, res)) {
+      return;
     }
     next(error);
   }
@@ -312,32 +253,10 @@ export const updateBudget = async (
 
     const { category_id, amount, month } = req.body;
 
-    // Validate category_id if provided
-    if (category_id !== undefined) {
-      if (typeof category_id !== 'string' || !isValidUUID(category_id)) {
-        return res.status(400).json({ error: 'Invalid category ID format' });
-      }
-    }
-
-    // Validate amount if provided
-    if (amount !== undefined && !isValidAmount(amount)) {
-      return res
-        .status(400)
-        .json({
-          error:
-            'Amount must be a positive number less than or equal to 9999999999.99',
-        });
-    }
-
-    // Validate month if provided
-    let normalizedMonth: string | undefined = undefined;
-    if (month !== undefined) {
-      if (typeof month !== 'string' || !isValidDate(month)) {
-        return res
-          .status(400)
-          .json({ error: 'Invalid month format (expected: YYYY-MM-DD)' });
-      }
-      normalizedMonth = normalizeMonth(month);
+    // Validate all fields
+    const validation = validateUpdateBudget({ category_id, amount, month }, res);
+    if (!validation.isValid) {
+      return;
     }
 
     // Build update object, only including defined properties
@@ -353,8 +272,8 @@ export const updateBudget = async (
     if (amount !== undefined) {
       updateData.amount = amount;
     }
-    if (normalizedMonth !== undefined) {
-      updateData.month = normalizedMonth;
+    if (validation.normalizedMonth !== undefined) {
+      updateData.month = validation.normalizedMonth;
     }
 
     const budget = await BudgetModel.updateBudget(id, updateData);
@@ -366,17 +285,16 @@ export const updateBudget = async (
     res.json(budget);
   } catch (error: any) {
     // Handle unique constraint violation
-    if (error.code === '23505') {
-      return res.status(409).json({
-        error:
-          'A budget for this user, category, and month already exists',
-      });
+    if (handleUniqueConstraintError(
+      error,
+      res,
+      'A budget for this user, category, and month already exists'
+    )) {
+      return;
     }
     // Handle foreign key constraint violations
-    if (error.code === '23503') {
-      return res.status(400).json({
-        error: 'Invalid category_id',
-      });
+    if (handleForeignKeyError(error, res)) {
+      return;
     }
     next(error);
   }
