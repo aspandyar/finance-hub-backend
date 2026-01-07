@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import { TransactionModel } from '../models/models.js';
 import type { TransactionType } from '../models/transaction.js';
+import { handleForeignKeyError } from '../utils/prismaErrors.js';
 
 // UUID validation regex
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -108,10 +109,8 @@ export const createTransaction = async (
     res.status(201).json(transaction);
   } catch (error: any) {
     // Handle foreign key constraint violations
-    if (error.code === '23503') {
-      return res.status(400).json({
-        error: 'Invalid user_id or category_id',
-      });
+    if (handleForeignKeyError(error, res)) {
+      return;
     }
     next(error);
   }
@@ -339,10 +338,8 @@ export const updateTransaction = async (
     res.json(transaction);
   } catch (error: any) {
     // Handle foreign key constraint violations
-    if (error.code === '23503') {
-      return res.status(400).json({
-        error: 'Invalid category_id',
-      });
+    if (handleForeignKeyError(error, res)) {
+      return;
     }
     next(error);
   }

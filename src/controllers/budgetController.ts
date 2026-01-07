@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { BudgetModel } from '../models/models.js';
+import { handleForeignKeyError, handleUniqueConstraintError } from '../utils/prismaErrors.js';
 
 // UUID validation regex
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -95,17 +96,16 @@ export const createBudget = async (
     res.status(201).json(budget);
   } catch (error: any) {
     // Handle unique constraint violation
-    if (error.code === '23505') {
-      return res.status(409).json({
-        error:
-          'A budget for this user, category, and month already exists',
-      });
+    if (handleUniqueConstraintError(
+      error,
+      res,
+      'A budget for this user, category, and month already exists'
+    )) {
+      return;
     }
     // Handle foreign key constraint violations
-    if (error.code === '23503') {
-      return res.status(400).json({
-        error: 'Invalid user_id or category_id',
-      });
+    if (handleForeignKeyError(error, res)) {
+      return;
     }
     next(error);
   }
@@ -366,17 +366,16 @@ export const updateBudget = async (
     res.json(budget);
   } catch (error: any) {
     // Handle unique constraint violation
-    if (error.code === '23505') {
-      return res.status(409).json({
-        error:
-          'A budget for this user, category, and month already exists',
-      });
+    if (handleUniqueConstraintError(
+      error,
+      res,
+      'A budget for this user, category, and month already exists'
+    )) {
+      return;
     }
     // Handle foreign key constraint violations
-    if (error.code === '23503') {
-      return res.status(400).json({
-        error: 'Invalid category_id',
-      });
+    if (handleForeignKeyError(error, res)) {
+      return;
     }
     next(error);
   }
