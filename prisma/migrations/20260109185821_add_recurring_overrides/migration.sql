@@ -1,6 +1,6 @@
 -- AlterTable
 ALTER TABLE "transactions" ADD COLUMN     "is_override" BOOLEAN NOT NULL DEFAULT false,
-ADD COLUMN     "recurring_transaction_id" TEXT;
+ADD COLUMN     "recurring_transaction_id" UUID;
 
 -- CreateIndex
 CREATE INDEX "transactions_recurring_transaction_id_date_idx" ON "transactions"("recurring_transaction_id", "date");
